@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Control Panel</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      color: #333;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      display: flex;
+      justify-content: space-between;
+      width: 80%;
+      max-width: 1000px;
+      background: white;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      padding: 20px;
+    }
+
+    .section {
+      flex: 1;
+      margin: 0 10px;
+      text-align: center;
+    }
+
+    .section h2 {
+      font-size: 20px;
+      margin-bottom: 15px;
+      color: #007bff;
+    }
+
+    .button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      margin: 5px;
+      font-size: 14px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .button:hover {
+      background-color: #0056b3;
+    }
+
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Volume Control Section -->
+    <div class="section">
+      <h2>Volume Control</h2>
+      <div class="button-group">
+        <button class="button" onclick="sendMessage('Volume Up')">Volume Up</button>
+        <button class="button" onclick="sendMessage('Volume Down')">Volume Down</button>
+        <button class="button" onclick="sendMessage('Mute')">Mute</button>
+      </div>
+    </div>
+
+    <!-- Media Control Section -->
+    <div class="section">
+      <h2>Media Control</h2>
+      <div class="button-group">
+        <button class="button" onclick="sendMessage('Pause')">Pause</button>
+        <button class="button" onclick="sendMessage('Next')">Next</button>
+        <button class="button" onclick="sendMessage('Previous')">Previous</button>
+      </div>
+    </div>
+
+    <!-- General Section -->
+    <div class="section">
+      <h2>General</h2>
+      <div class="button-group">
+        <button class="button" onclick="sendMessage('Screenshot')">Screenshot</button>
+        <button class="button" onclick="sendMessage('Sleep')">Sleep</button>
+        <button class="button" onclick="sendMessage('Lock PC')">Lock PC</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function sendMessage(message) {
+      fetch('/send-message', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ message })
+      })
+      .then(response => response.text())
+      .then(data => alert(`Response: ${data}`))
+      .catch(err => alert(`Error: ${err}`));
+    }
+  </script>
+</body>
+</html>
