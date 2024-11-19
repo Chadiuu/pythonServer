@@ -1,8 +1,9 @@
-import socket
 import os
-from mss import mss
+import socket
 from datetime import datetime
+from mss import mss
 import keyboard
+
 
 class Control:
     def handle_command(self, command):
@@ -10,70 +11,72 @@ class Control:
 
 
 class MediaControl(Control):
+    def __init__(self):
+        self.commands = {
+            1: self.pause,
+            2: self.next_track,
+            3: self.previous_track,
+        }
+
     def handle_command(self, command):
-        if command == "Pause":
-            return self.pause()
-        elif command == "Next":
-            return self.next_track()
-        elif command == "Previous":
-            return self.previous_track()
-        else:
-            return "Unknown Media Command"
+        action = self.commands.get(command)
+        if action:
+            return action()
+        return "Unknown Media Command"
 
     def pause(self):
         keyboard.send("play/pause media")
-        return "play/pause"
-
+        return "Media Paused/Played"
 
     def next_track(self):
         keyboard.send("next track")
-        return "next track"
-
+        return "Next Track"
 
     def previous_track(self):
         keyboard.send("previous track")
-        return "next previous track"
-    
-
+        return "Previous Track"
 
 
 class VolumeControl(Control):
+    def __init__(self):
+        self.commands = {
+            4: self.volume_up,
+            5: self.volume_down,
+            6: self.mute,
+        }
+
     def handle_command(self, command):
-        if command == "Volume Up":
-            return self.volume_up()
-        elif command == "Volume Down":
-            return self.volume_down()
-        elif command == "Mute":
-            return self.mute()
-        else:
-            return "Unknown Volume Command"
+        action = self.commands.get(command)
+        if action:
+            return action()
+        return "Unknown Volume Command"
 
     def volume_up(self):
         keyboard.send("volume up")
-        return "volume increased"
-
+        return "Volume Increased"
 
     def volume_down(self):
         keyboard.send("volume down")
-        return "volume decreased"
-
+        return "Volume Decreased"
 
     def mute(self):
         keyboard.send("volume mute")
-        return "volume muted"
-
+        return "Volume Muted"
 
 
 class GeneralControl(Control):
+    def __init__(self):
+        self.commands = {
+            7: self.screenshot_action,
+            8: self.sleep_pc,
+            9: self.lock_pc,
+        }
+
     def handle_command(self, command):
-        if command == "Screenshot":
-            return self.screenshot_action()
-        elif command == "Sleep":
-            return self.sleepPC()
-        elif command == "Lock PC":
-            return self.lockPC()
-        else:
-            return "Unknown General Command"
+        action = self.commands.get(command)
+        if action:
+            return action()
+        return "Unknown General Command"
 
     def screenshot_action(self):
         desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
@@ -82,18 +85,16 @@ class GeneralControl(Control):
         file_path = os.path.join(desktop_path, filename)
         with mss() as sct:
             sct.shot(output=file_path)
-        
         print(f"Screenshot saved to {file_path}")
-        return file_path
+        return f"Screenshot saved: {file_path}"
 
-
-    def sleepPC(self):
+    def sleep_pc(self):
         os.system('rundll32.exe powrprof.dll,SetSuspendState 0,1,0')
-        return "sleep PC"
+        return "PC is now sleeping"
 
-    def lockPC(self):
+    def lock_pc(self):
         os.system('rundll32.exe user32.dll,LockWorkStation')
-        return "lockPC"
+        return "PC Locked"
 
 
 class Server:
@@ -103,6 +104,18 @@ class Server:
         self.media_control = MediaControl()
         self.volume_control = VolumeControl()
         self.general_control = GeneralControl()
+
+        self.command_map = {
+            1: self.media_control,
+            2: self.media_control,
+            3: self.media_control,
+            4: self.volume_control,
+            5: self.volume_control,
+            6: self.volume_control,
+            7: self.general_control,
+            8: self.general_control,
+            9: self.general_control,
+        }
 
     def start(self):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
@@ -117,57 +130,21 @@ class Server:
                         data = conn.recv(1024).decode()
                         if not data:
                             break
-                        print(f"Received: {data}")
-                        response = self.route_command(data)
+                        try:
+                            command = int(data)  # Convert command to integer
+                            print(f"Received Command: {command}")
+                            response = self.route_command(command)
+                        except ValueError:
+                            response = "Invalid Command Format"
                         conn.sendall(response.encode())
 
     def route_command(self, command):
-        if command in ["Pause", "Next", "Previous"]:
-            return self.media_control.handle_command(command)
-        elif command in ["Volume Up", "Volume Down", "Mute"]:
-            return self.volume_control.handle_command(command)
-        elif command in ["Sleep", "Lock PC", "Screenshot"]:
-            return self.general_control.handle_command(command)
-        else:
-            return "Unknown Command"
+        control = self.command_map.get(command)
+        if control:
+            return control.handle_command(command)
+        return "Unknown Command"
+
+
 if __name__ == "__main__":
     server = Server()
     server.start()
-
-
-
-
-
-# def stop_media():
-#     keyboard.send("stop media")
-# def sleepComputer():
-#     os.system('rundll32.exe powrprof.dll,SetSuspendState 0,1,0')
-#     return True
-# import os
-# from mss import mss
-# from datetime import datetime
-
-# def take_screenshot():
-#     # Get the path to the Desktop
-#     desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
-    
-#     # Generate a unique filename using the current timestamp
-#     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-#     filename = f"screenshot_{timestamp}.png"
-    
-#     # Full path to save the screenshot
-#     file_path = os.path.join(desktop_path, filename)
-    
-#     # Take the screenshot and save it to the Desktop
-#     with mss() as sct:
-#         sct.shot(output=file_path)
-    
-#     print(f"Screenshot saved to {file_path}")
-#     return file_path
-
-
-# def lockPc():
-#     os.system('rundll32.exe user32.dll,LockWorkStation')
-#     return True
-# def shutdownpc():
-#     os.system('shutdown /s /t 1')

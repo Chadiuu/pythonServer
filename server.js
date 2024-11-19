@@ -16,20 +16,25 @@ app.use((req, res, next) => {
   next();
 });
 app.post('/send-message', (req, res) => {
-  const { message } = req.body;
+  const { command } = req.body;
 
-  const pythonHost = '127.0.0.1'; 
-  const pythonPort = 65432;       
+  if (typeof command !== 'number') {
+    res.status(400).send('Invalid command');
+    return;
+  }
+
+  const pythonHost = '127.0.0.1';
+  const pythonPort = 65432;
 
   const client = new net.Socket();
   client.connect(pythonPort, pythonHost, () => {
-    console.log(`Connected to Python server. Sending message: ${message}`);
-    client.write(message);
+    console.log(`Connected to Python server. Sending command: ${command}`);
+    client.write(command.toString());
   });
 
   client.on('data', (data) => {
     console.log(`Response from Python: ${data}`);
-    client.destroy(); 
+    client.destroy();
     res.send(`Python server responded: ${data}`);
   });
 

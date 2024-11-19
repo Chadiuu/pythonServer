@@ -63,51 +63,54 @@
   </style>
 </head>
 <body>
-  <div class="container">
-    <!-- Volume Control Section -->
+  <div class="container"> 
     <div class="section">
       <h2>Volume Control</h2>
       <div class="button-group">
-        <button class="button" onclick="sendMessage('Volume Up')">Volume Up</button>
-        <button class="button" onclick="sendMessage('Volume Down')">Volume Down</button>
-        <button class="button" onclick="sendMessage('Mute')">Mute</button>
+        <button class="button" onclick="sendCommand(4)">Volume Up</button>
+        <button class="button" onclick="sendCommand(5)">Volume Down</button>
+        <button class="button" onclick="sendCommand(6)">Mute</button>
       </div>
     </div>
-
-    <!-- Media Control Section -->
-    <div class="section">
+  
+    <!-- Volume Control Section -->
+     <div class="section">
       <h2>Media Control</h2>
       <div class="button-group">
-        <button class="button" onclick="sendMessage('Pause')">Pause</button>
-        <button class="button" onclick="sendMessage('Next')">Next</button>
-        <button class="button" onclick="sendMessage('Previous')">Previous</button>
+        <button class="button" onclick="sendCommand(1)">Pause</button>
+        <button class="button" onclick="sendCommand(2)">Next</button>
+        <button class="button" onclick="sendCommand(3)">Previous</button>
       </div>
     </div>
-
+   
+    <!-- Media Control Section -->
+    
+  
     <!-- General Section -->
     <div class="section">
       <h2>General</h2>
       <div class="button-group">
-        <button class="button" onclick="sendMessage('Screenshot')">Screenshot</button>
-        <button class="button" onclick="sendMessage('Sleep')">Sleep</button>
-        <button class="button" onclick="sendMessage('Lock PC')">Lock PC</button>
+        <button class="button" onclick="sendCommand(7)">Screenshot</button>
+        <button class="button" onclick="sendCommand(8)">Sleep</button>
+        <button class="button" onclick="sendCommand(9)">Lock PC</button>
       </div>
     </div>
   </div>
-
+  
   <script>
-    function sendMessage(message) {
+    function sendCommand(command) {
       fetch('/send-message', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ message })
+        body: JSON.stringify({ command }),
       })
-      .then(response => response.text())
-      .then(data => alert(`Response: ${data}`))
-      .catch(err => alert(`Error: ${err}`));
+        .then(response => response.text())
+        .then(data => console.log(data))
+        .catch(err => console.error(err));
     }
   </script>
+  
 </body>
 </html>
