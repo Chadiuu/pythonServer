@@ -88,6 +88,7 @@ class GeneralControl(Control):
 
 
     def sleepPC(self):
+        os.system('rundll32.exe powrprof.dll,SetSuspendState 0,1,0')
         return "sleep PC"
 
     def lockPC(self):
